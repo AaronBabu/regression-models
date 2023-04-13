@@ -88,3 +88,37 @@ class LogLikelihood:
     """
     def _sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
+    
+    
+#For testing purposes
+import matplotlib.pyplot as plt
+
+# Define the input x data and result y data
+x_data = np.random.normal(size=100)
+y_data = np.random.binomial(1, 1 / (1 + np.exp(-(1.5 * x_data - 0.5))), size=100)
+
+# Train the logistic regression model
+ll = LogLikelihood()
+ll.train(x_data, y_data)
+
+# Define the test x data to predict y values
+x_test = np.linspace(-4, 4, 200)
+
+# Use the trained model to predict the result y values
+y_pred = ll.predict(x_test)
+print(y_pred)
+
+# Plot the input data points and the predicted line
+plt.scatter(x_data, y_data, c=y_data)
+plt.plot(x_test, y_pred)
+plt.show()
+
+
+
+
+
+
+
+
+
+
