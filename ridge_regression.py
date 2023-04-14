@@ -13,7 +13,7 @@ class RidgeRegression:
         y_data = y_data + self.epsilon  
         y_data_log = np.log(y_data)  
         self.model.fit(x_data, y_data_log)
-        self.model.coef_[0] *= 0.5
+        #self.model.coef_[0] *= 0.5
         
     def predict(self, x_new):
         y_pred_log = self.model.predict(x_new)
