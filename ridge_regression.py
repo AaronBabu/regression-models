@@ -1,63 +1,43 @@
-from sklearn.linear_model import Ridge
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.linear_model import Ridge
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+import matplotlib.pyplot as plt
 
 class RidgeRegression:
-    def __init__(self, alpha=1.0):
-        self.alpha = alpha
-        self.model = Ridge(alpha=self.alpha)
-        self.epsilon = 1e-4  
-        
-    def train(self, x_data, y_data):
-        y_data = y_data + self.epsilon  
-        y_data_log = np.log(y_data)  
-        self.model.fit(x_data, y_data_log)
-        #self.model.coef_[0] *= 0.5
-        
-    def predict(self, x_new):
-        y_pred_log = self.model.predict(x_new)
-        y_pred = np.exp(y_pred_log)  
-        return y_pred
+    def __init__(self, x_data, y_data):
+        self.x_data = x_data
+        self.y_data = y_data
+        self.model = Pipeline([
+            ('scaler', StandardScaler()),
+            ('ridge', Ridge())
+        ])
 
-# Load the CSV file
-data = pd.read_csv('training_data.csv')
+    def train(self):
+        self.model.fit(self.x_data, self.y_data)
 
-# Separate the input and output data
-X = data[['Correct', 'Total']].values
-y = data['Cluster Rating'].values
+    def predict(self, x_test):
+        return self.model.predict(x_test)
 
-# Train the model
-rr = RidgeRegression()
-rr.train(X, y)
+# Read data from the CSV file
+data = pd.read_csv("training_data.csv")
+x_data = data[["Correct", "Total"]].values
+y_data = data["Cluster Rating"].values
 
-# Make predictions on new data
-X_new = np.array([[1, 2], [2, 2], [4, 5], [5, 5]])
-y_pred = rr.predict(X_new)
+# Initialize, train, and predict
+ridge_regression = RidgeRegression(x_data, y_data)
+ridge_regression.train()
+x_test = np.array([[1, 2], [2, 2], [3, 5], [5, 5]])
+y_pred = ridge_regression.predict(x_test)
 
-# Plot the input data and the regression line
-fig, ax = plt.subplots()
-ax.scatter(X[:, 0], X[:, 1], c=y)
-ax.set_xlabel('Correct')
-ax.set_ylabel('Total')
-ax.set_title('Input Data')
+# Print the predictions
+print("Predictions:", y_pred)
 
-# Create a meshgrid of points to evaluate the regression function
-x_min, x_max = ax.get_xlim()
-y_min, y_max = ax.get_ylim()
-xx, yy = np.meshgrid(np.linspace(x_min, x_max, 100), np.linspace(y_min, y_max, 100))
-Z = rr.predict(np.c_[xx.ravel(), yy.ravel()])
-Z = Z.reshape(xx.shape)
-
-# Plot the regression line as a contour plot
-ax.contourf(xx, yy, Z, alpha=0.2, levels=np.linspace(y.min(), y.max(), 10))
-print(y_pred)
+# Plot the model and the predictions
+plt.scatter(x_data[:, 0], y_data, color='blue', label='Training data')
+plt.scatter(x_test[:, 0], y_pred, color='red', label='Predicted data')
+plt.xlabel("Questions answered correctly")
+plt.ylabel("Competency rating")
+plt.legend()
 plt.show()
-
-
-
-# Plot the data
-
-
-
-

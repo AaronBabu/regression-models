@@ -1,124 +1,80 @@
 import numpy as np
-from numpy import reshape
-
-class LogLikelihood:
-    
-    def __init__(self):
-        # Initialize self.w as None, it will hold the transformation function matrix 
-        self.w = None
-    
-    """
-    Train the logistic regression model using the given training data.
-    
-    Parameters:
-        x_data: input x training data for the model
-        y_data: result y training data for the model
-        learning_rate: learning rate for regression model
-        num_iterations: number of iterations to cycle through
-    
-    Returns:
-        The new self.w matrix.
-    """
-    def train(self, x_data, y_data, learning_rate=0.01, num_iterations=1000):
-        # Get the length of the input data
-        n = len(x_data)
-        # Add a column of ones to x_data and reshape y_data
-        x = np.hstack((np.ones((n, 1)), x_data.reshape(n, 1)))
-        y = y_data.reshape(n, 1)
-        # Initialize the transformation function matrix as zeros
-        self.w = np.zeros((2, 1))
-        
-        # Iterate through the number of iterations specified
-        for i in range(num_iterations):
-            # Calculate the predicted output using sigmoid function
-            y_pred = self._sigmoid(np.dot(x, self.w))
-            # Calculate the difference between predicted and actual output
-            error = y - y_pred
-            # Calculate the gradient using the dot product of transposed input data and error
-            gradient = np.dot(x.T, error)
-            # Update the transformation function matrix using the learning rate and gradient
-            self.w += learning_rate * gradient
-            
-        return self.w
-    
-    """
-    Use the trained model to predict the result y for the given input x data.
-    
-    Parameters:
-        x_test: input x test data to predict y results
-    
-    Returns:
-        The predicted y values.
-    """
-    def predict(self, x_test):
-        n = len(x_test)
-        x = np.hstack((np.ones((n, 1)), x_test.reshape(n, 1)))
-        y_pred = self._sigmoid(np.dot(x, self.w))
-        return y_pred.flatten()
-    
-    """
-    Calculate the log-likelihood of the logistic regression model using the given training data.
-    
-    Parameters:
-        x_data: input x training data for the model
-        y_data: result y training data for the model
-    
-    Returns:
-        The log-likelihood of the model.
-    """
-    def log_likelihood(self, x_data, y_data):
-        n = len(x_data)
-        # Add a column of ones to x_data and reshape y_data
-        x = np.hstack((np.ones((n, 1)), x_data.reshape(n, 1)))
-        y = y_data.reshape(n, 1)
-        # Calculate the predicted output using sigmoid function
-        y_pred = self._sigmoid(np.dot(x, self.w))
-        # Calculate the log-likelihood using the formula
-        ll = np.sum(y * np.log(y_pred) + (1 - y) * np.log(1 - y_pred))
-        return ll
-    
-    """
-    Sigmoid function to be used in calculating the predicted output.
-    
-    Parameters:
-        z: the input value for the sigmoid function
-    
-    Returns:
-        The sigmoid value of the input.
-    """
-    def _sigmoid(self, z):
-        return 1 / (1 + np.exp(-z))
-    
-    
-#For testing purposes
+import pandas as pd
 import matplotlib.pyplot as plt
 
-# Define the input x data and result y data
-x_data = np.random.normal(size=100)
-y_data = np.random.binomial(1, 1 / (1 + np.exp(-(1.5 * x_data - 0.5))), size=100)
+class LogisticRegression:
 
-# Train the logistic regression model
-ll = LogLikelihood()
-ll.train(x_data, y_data)
+    """
+    Log Regression Prediction model
+    x_data -> input training data
+    y_data -> output training data
+    self.w - transformation matrix w
+    
+    Creates and trains a Log Regression model to be used for predictions
+    """
 
-# Define the test x data to predict y values
-x_test = np.linspace(-4, 4, 200)
+    def __init__(self, x_data, y_data):
+        self.x_data = np.array(x_data)
+        self.y_data = np.array(y_data)
+        
+    #Maps z onto sigmoid function
+    def sigmoid(self, z):
+        return 1 / (1 + np.exp(-z))
+        
+    #Calculates the likelihood minimizing loss
+    def likelihood(self, theta):
+        z = np.dot(self.x_data, theta)
+        y_pred = self.sigmoid(z)
+        loss = -self.y_data * np.log(y_pred) - (1 - self.y_data) * np.log(1 - y_pred)
+        return np.mean(loss)
+    
+    #Minimizes loss using gradient 
+    def gradient(self, theta):
+        z = np.dot(self.x_data, theta)
+        y_pred = self.sigmoid(z)
+        error = y_pred - self.y_data
+        return np.dot(self.x_data.T, error) / self.y_data.size
+    
+    #Trains the data
+    def train(self, lr=0.01, num_iterations=1000):
+        self.theta = np.zeros(self.x_data.shape[1])
+        self.loss_history = []
+        
+        for i in range(num_iterations):
+            self.theta -= lr * self.gradient(self.theta)
+            self.loss_history.append(self.likelihood(self.theta))
+            
+    #Used to predict y values given x values 
+    def predict(self, x):
+        x = np.array(x)
+        z = np.dot(x, self.theta)
+        return self.sigmoid(z)
+    
+# Load the data from the csv file
+data = pd.read_csv('training_data.csv')
+x_data = data[['Correct', 'Total']].values
+y_data = data['Cluster Rating'].values
 
-# Use the trained model to predict the result y values
-y_pred = ll.predict(x_test)
+# Create and train the model
+model = LogisticRegression(x_data, y_data)
+model.train()
+
+# Predict the y for the given x values
+x_pred = [[1, 2], [2, 2], [3, 5], [5, 5]]
+y_pred = model.predict(x_pred)
+
+# Plot the model and the predictions
+x_range = np.linspace(0, 6, 100)
+y_range = np.linspace(0, 1, 100)
+xx, yy = np.meshgrid(x_range, y_range)
+theta = np.array([model.theta[0], model.theta[1], model.theta[1]])
+zz = model.sigmoid(np.dot(np.c_[np.ones(xx.ravel().shape), xx.ravel(), yy.ravel()], theta)).reshape(xx.shape)
+
+plt.contourf(xx, yy, zz, cmap=plt.cm.RdBu_r, alpha=.8)
+plt.colorbar()
+plt.scatter(x_data[:, 0], x_data[:, 1], c=y_data, cmap=plt.cm.RdBu_r, edgecolors='k')
+plt.scatter(np.array(x_pred)[:, 0], np.array(x_pred)[:, 1], c=y_pred, cmap=plt.cm.RdBu_r, edgecolors='k', marker='x')
+plt.xlabel('Number of questions answered correctly')
+plt.ylabel('Total number of questions')
 print(y_pred)
-
-# Plot the input data points and the predicted line
-plt.scatter(x_data, y_data, c=y_data)
-plt.plot(x_test, y_pred)
 plt.show()
-
-
-
-
-
-
-
-
-
-
