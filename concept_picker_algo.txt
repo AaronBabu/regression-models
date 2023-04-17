@@ -1,0 +1,44 @@
+cluster_pool = {
+    'Cluster1': ['concept1', 'concept2'],
+    'Cluster2': ['concept3', 'concept4', 'concept5']
+    'Cluster3': ['concept6', 'concept7']
+}
+
+concept_responses = {
+    'concept1': {
+        'numRight': 1,
+        'totalAnswered': 2
+    },
+    'concept3': {
+        'numRight': 0,
+        'totalAnswered': 1
+    }
+}
+
+# Thresholds to remove extreme /ratings
+
+    upper_threshold = 0.8
+    lower_threshold = 0.2
+
+# Removes concept clusters which fall outside the threshold range
+
+    for (cluster_name, rating_val) in competence_ratings.items 
+        if value of rating_val > upper_threshold or < lower_threshold:
+            remove cluster from cluster_pool
+
+# Bias for selecting concepts from remaining pool (determining weights)
+
+    # Weights concepts that were not asked at all or minimally asked
+
+    concept_weights = {}
+    for concept_name, response in concept_responses.items
+        if response['totalAnswered'] is 0
+            assign a weight of 1 to the concept_name in concept_weight dict
+        else
+            assign a weight of 1/response['totalAnswered'] to the concept_name in concept_weight dict
+
+# final list of concepts
+
+sort concept_weights dict in descending order (concepts that appear at top will be the ones that were either not asked at all or minimally asked)
+
+
