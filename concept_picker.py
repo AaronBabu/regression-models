@@ -1,4 +1,5 @@
 import values
+import json
 
 
 def concept_picker(competence_dict):
@@ -35,7 +36,9 @@ def concept_picker(competence_dict):
         if confidence <= values.CONFIDENCE
     ]
 
-    return low_confidence_concepts
+    json_object = json.dumps(low_confidence_concepts)
+
+    return json_object
 
 
 cluster_pool_competence_confidence = {
