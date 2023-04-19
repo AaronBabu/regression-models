@@ -2,6 +2,7 @@ from sklearn.svm import SVR
 from sklearn.model_selection import RandomizedSearchCV
 import pandas as pd
 import numpy as np
+import pickle
 
 
 class SVMPrediction:
@@ -47,7 +48,16 @@ y_train = data["Cluster Rating"].values
 # Create and train the model
 model = SVMPrediction()
 model.train(x_train, y_train)
-
+support_vectors = model.regression.support_vectors_
+dual_coef = model.regression.dual_coef_
+intercept = model.regression.intercept_
+gamma = 1 / (x_train.shape[1] * np.var(x_train))
+print("sup: ", str(support_vectors))
+print("dual_coef: ", str(dual_coef))
+print("intercept: ", intercept)
+print("gamma: ", gamma)
+with open("svm_values.pkl", "wb") as f:
+    pickle.dump((support_vectors, dual_coef, intercept, gamma), f)
 # Predict the y for the given x values
 x_test = [[1, 2], [2, 2], [3, 5], [5, 5]]
 y_pred = model.predict(x_test)

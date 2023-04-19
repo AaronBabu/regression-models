@@ -20,6 +20,22 @@ class RidgeRegression:
     def predict(self, x_test):
         return self.model.predict(x_test)
 
+    def export_unscaled_weights(self):
+        # Retrieve the scaled coefficients and intercept
+        scaled_coef = self.model.named_steps['ridge'].coef_
+        scaled_intercept = self.model.named_steps['ridge'].intercept_
+
+        # Retrieve the scaler's mean and scale (std deviation)
+        mean = self.model.named_steps['scaler'].mean_
+        scale = self.model.named_steps['scaler'].scale_
+
+        # Calculate the unscaled coefficients and intercept
+        unscaled_coef = scaled_coef / scale
+        unscaled_intercept = scaled_intercept - np.dot(mean, unscaled_coef)
+
+        return unscaled_coef, unscaled_intercept
+
+
 # Read data from the CSV file
 data = pd.read_csv("training_data.csv")
 x_data = data[["Correct", "Total"]].values
@@ -28,11 +44,16 @@ y_data = data["Cluster Rating"].values
 # Initialize, train, and predict
 ridge_regression = RidgeRegression(x_data, y_data)
 ridge_regression.train()
-x_test = np.array([[1, 2], [2, 2], [3, 5], [5, 5]])
+x_test = np.array([[1, 2], [2, 2], [1, 5], [5, 5]])
 y_pred = ridge_regression.predict(x_test)
+w, intercept = ridge_regression.export_unscaled_weights()
 
 # Print the predictions
 print("Predictions:", y_pred)
+print("W:", w)
+print("Intercept:", intercept)
+print((np.dot(x_test, w) + intercept))
+
 
 # Plot the model and the predictions
 plt.scatter(x_data[:, 0], y_data, color='blue', label='Training data')
