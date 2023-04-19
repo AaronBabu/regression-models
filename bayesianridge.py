@@ -31,6 +31,11 @@ class BayesianRidgeWrapper:
 
     def predict(self, x_test):
         return self.model.predict(x_test)
+    
+    def returnWeightAndIntercept(self):
+        w = self.model.coef_
+        intercept = self.model.intercept_
+        return w, intercept
 
 
 # Load the data from the csv file
@@ -41,8 +46,12 @@ y_train = data["Cluster Rating"].values
 # Create and train the model
 model = BayesianRidgeWrapper()
 model.train(x_train, y_train)
+w, intercept = model.returnWeightAndIntercept()
+print("weight: ", w)
+print("intercept: ", intercept)
 
 # Predict the y for the given x values
 x_test = [[1, 2], [2, 2], [3, 5], [5, 5]]
 y_pred = model.predict(x_test)
 print(f"Predictions: {y_pred}")
+print(np.dot(x_test, w) + intercept)
