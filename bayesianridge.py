@@ -31,7 +31,7 @@ class BayesianRidgeWrapper:
 
     def predict(self, x_test):
         return self.model.predict(x_test)
-    
+
     def returnWeightAndIntercept(self):
         w = self.model.coef_
         intercept = self.model.intercept_
