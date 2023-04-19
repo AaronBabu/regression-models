@@ -16,8 +16,8 @@ def parseToConceptPicker(parsed_content, model):
         return log(parsed_content, values.LOG_W)
     if model == "bayesianridge":
         return ridge(parsed_content, values.BAYESIANRIDGE_W, values.BAYESIANRIDGE_INTERCEPT)
-    # if model == "svm": 
-    #     return svm(parsed_content, values.SVM_SUPPORT_VECTORS, values.SVM_DUAL_COEFS, values.SVM_INTERCEPT, values.SVM_GAMMA)
+    if model == "svm": 
+         return svm(parsed_content, values.SVM_SUPPORT_VECTORS, values.SVM_DUAL_COEFS, values.SVM_INTERCEPT, values.SVM_GAMMA)
 
 def ridge(parsed_content, w, intercept):
     updated_content = {}
@@ -45,6 +45,24 @@ def log(parsed_content, w):
         updated_content[cluster] = updated_concepts
     return updated_content
 
+def svm(x_test, support_vectors, dual_coef, bias, gamma):
+    def RBF(x,z,gamma,axis=None):
+        x = np.array(x)
+        z = np.array(z)
+        x = x.reshape(1, -1)  # reshape x to (1, 2)
+        z = z.reshape(1, -1)  # reshape z to (1, 2)
+        return np.exp((-gamma*np.linalg.norm(x-z, axis=axis)**2))
+
+    A = []
+    # Loop over all suport vectors to calculate K(Xi, X_test), for Xi belongs to the set of support vectors
+    for x in support_vectors:
+        A.append(RBF(x, x_test, gamma))
+    A = np.array(A)
+
+    return (np.sum(dual_coef*A)+bias)
+
+
+
 # def rbf_kernel(x1, x2, gamma):
 #     return np.exp(-gamma * np.linalg.norm(x1 - x2)**2)
 
@@ -65,7 +83,9 @@ parsed_content = {
     'Cluster 2': {'concept3': (3, 5), 'concept4': (5, 5)}
 }
 
-print(parseToConceptPicker(parsed_content, "bayesianridge"))
+parsed_content = [1, 2]
+
+print(parseToConceptPicker(parsed_content, "svm"))
 
 """
 outputs -> {
