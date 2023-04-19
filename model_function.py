@@ -67,5 +67,11 @@ parsed_content = {
 
 print(parseToConceptPicker(parsed_content, "bayesianridge"))
 
+"""
+outputs -> {
+    'Cluster 1': {'concept1': 0.5129150789377697, 'concept2': 0.6130149189377697}, 
+    'Cluster 2': {'concept3': 0.6130149189377697, 'concept4': 0.9449037589377697}
+    }
+"""
 
 
