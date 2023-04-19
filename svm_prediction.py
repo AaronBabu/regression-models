@@ -39,6 +39,11 @@ class SVMPrediction:
         # predicts output data given test data
         return self.regression.predict(x_test)
 
+    def returnWeightandIntercept(self):
+        w = self.regression.coef_
+        intercept = self.regression.intercept_
+        return w, intercept
+
 
 # Load the data from the csv file
 data = pd.read_csv("training_data.csv")
