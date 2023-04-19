@@ -5,11 +5,22 @@ import json
 def concept_picker(competence_dict):
 
     """
-    Sample JSON input:
+    Sample Input(JSON):
 
     cluster_pool_competence_confidence = {
-    'Cluster1': {'concept1': (0.2, 0.8), 'concept2': (0.3, 0.7)}
+    "Cluster1": {"concept1": (0.2, 0.1), "concept2": (0.3, 0.95)},
+    "Cluster2": {"concept3": (0.4, 0.15), "concept4": (0.5, 0.2)},
+    "Cluster3": {"concept5": (0.9, 0.9), "concept6": (0.9, 0.3)},
+    "Cluster4": {
+        "concept7": (0.7, 0.45),
+        "concept8": (0.1, 0.6),
+        "concept9": (0.25, 0.34),
+    },
     }
+
+    Sample Output(JSON):
+
+    ["concept4", "concept6", "concept7", "concept9"]
     """
 
     upper_threshold = values.UPPER_THRESHOLD
@@ -39,16 +50,6 @@ def concept_picker(competence_dict):
     json_object = json.dumps(low_confidence_concepts)
 
     return json_object
-
-
-cluster_pool_competence_confidence = {
-    "Cluster1": {"concept1": (0.2, 0.1), "concept2": (0.3, 0.95)},
-    "Cluster2": {"concept3": (0.4, 0.15), "concept4": (0.5, 0.2)},
-    "Cluster3": {"concept5": (0.9, 0.9), "concept6": (0.9, 0.3)},
-    "Cluster4": {"concept7": (0.7, 0.45), "concept8": (0.1, 0.6)},
-}
-
-print(concept_picker(cluster_pool_competence_confidence))
 
 
 # IGNORE STUFF BELOW
