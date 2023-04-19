@@ -14,8 +14,10 @@ def parseToConceptPicker(parsed_content, model):
         return ridge(parsed_content, values.RIDGE_W, values.RIDGE_INTERCEPT)
     if model == "log": 
         return log(parsed_content, values.LOG_W)
-    if model == "svm": 
-        return svm(parsed_content, values.SVM_SUPPORT_VECTORS, values.SVM_DUAL_COEFS, values.SVM_INTERCEPT, values.SVM_GAMMA)
+    if model == "bayesianridge":
+        return ridge(parsed_content, values.BAYESIANRIDGE_W, values.BAYESIANRIDGE_INTERCEPT)
+    # if model == "svm": 
+    #     return svm(parsed_content, values.SVM_SUPPORT_VECTORS, values.SVM_DUAL_COEFS, values.SVM_INTERCEPT, values.SVM_GAMMA)
 
 def ridge(parsed_content, w, intercept):
     updated_content = {}
@@ -43,27 +45,27 @@ def log(parsed_content, w):
         updated_content[cluster] = updated_concepts
     return updated_content
 
-def rbf_kernel(x1, x2, gamma):
-    return np.exp(-gamma * np.linalg.norm(x1 - x2)**2)
+# def rbf_kernel(x1, x2, gamma):
+#     return np.exp(-gamma * np.linalg.norm(x1 - x2)**2)
 
-def decision_function(x, support_vectors, dual_coefs, intercept, gamma):
-    kernel_values = np.array([rbf_kernel(x, sv, gamma) for sv in support_vectors])
-    decision_value = np.dot(dual_coefs, kernel_values) + intercept
-    return decision_value
+# def decision_function(x, support_vectors, dual_coefs, intercept, gamma):
+#     kernel_values = np.array([rbf_kernel(x, sv, gamma) for sv in support_vectors])
+#     decision_value = np.dot(dual_coefs, kernel_values) + intercept
+#     return decision_value
 
-def svm(x_test, support_vectors, dual_coefs, intercept, gamma):
-    decision_values = []
-    for x in x_test:
-        decision_value = decision_function(x, support_vectors, dual_coefs, intercept, gamma)
-        decision_values.append(decision_value)
-    return np.array(decision_values)
+# def svm(x_test, support_vectors, dual_coefs, intercept, gamma):
+#     decision_values = []
+#     for x in x_test:
+#         decision_value = decision_function(x, support_vectors, dual_coefs, intercept, gamma)
+#         decision_values.append(decision_value)
+#     return np.array(decision_values)
 
 parsed_content = {
     'Cluster 1': {'concept1': (1, 2), 'concept2': (3, 5)},
-    'Cluster 2': {'concept3': (1, 5), 'concept4': (5, 5)}
+    'Cluster 2': {'concept3': (3, 5), 'concept4': (5, 5)}
 }
 
-print(parseToConceptPicker(parsed_content, "svm"))
+print(parseToConceptPicker(parsed_content, "bayesianridge"))
 
 
 
